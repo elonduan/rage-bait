@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rage AI</title>
+
+  <style>
+    body {
+      background: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: orange;
+    }
+
+    #chat {
+      background: #1b1b1b;
+      border-radius: 10px;
+      height: 500px;
+      overflow-y: auto;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    .message {
+      margin-bottom: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      max-width: 80%;
+    }
+
+    .user {
+      background: #2563eb;
+      margin-left: auto;
+    }
+
+    .ai {
+      background: #dc2626;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 10px;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+
+    button {
+      background: orange;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #score {
+      margin-top: 10px;
+      font-size: 20px;
+      color: gold;
+    }
+
+    #rank {
+      color: cyan;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🔥 Rage AI Battle 🔥</h1>
+
+  <div id="chat"></div>
+
+  <div class="input-area">
+    <input type="text" id="input" placeholder="Type your rage..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <div id="score">
+    Score: <span id="scoreValue">0</span>
+    |
+    Rank: <span id="rank">Beginner Menace</span>
+  </div>
+</div>
+
+<script>
+  const GROQ_API_KEY = "PUT_YOUR_GROQ_KEY_HERE";
+
+  const chat = document.getElementById("chat");
+  const input = document.getElementById("input");
+
+  let score = 0;
+
+  function addMessage(text, sender) {
+    const div = document.createElement("div");
+    div.classList.add("message");
+    div.classList.add(sender);
+
+    div.innerText = text;
+
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function calculateScore(message) {
+    let points = 0;
+
+    points += message.length;
+
+    const caps = message.match(/[A-Z]/g);
+    if (caps) {
+      points += caps.length * 2;
+    }
+
+    const exclamations = message.match(/!/g);
+    if (exclamations) {
+      points += exclamations.length * 3;
+    }
+
+    points += Math.floor(Math.random() * 10);
+
+    return points;
+  }
+
+  function updateRank() {
+    const rank = document.getElementById("rank");
+
+    if (score < 100) {
+      rank.innerText = "Beginner Menace";
+    } else if (score < 300) {
+      rank.innerText = "Certified Troll";
+    } else if (score < 700) {
+      rank.innerText = "Keyboard Warrior";
+    } else {
+      rank.innerText = "Final Boss";
+    }
+  }
+
+  async function sendMessage() {
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    addMessage(message, "user");
+
+    const gained = calculateScore(message);
+    score += gained;
+
+    document.getElementById("scoreValue").innerText = score;
+
+    updateRank();
+
+    input.value = "";
+
+    addMessage("AI is typing...", "ai");
+
+    try {
+      const response = await fetch(
+        "https://api.groq.com/openai/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${GROQ_API_KEY}`
+          },
+          body: JSON.stringify({
+            model: "llama-3.1-8b-instant",
+            messages: [
+              {
+                role: "system",
+                content:
+                  "You are a stubborn rage-bait AI. Be sarcastic, funny, arrogant, and NEVER admit defeat. Keep responses under 15 words."
+              },
+              {
+                role: "user",
+                content: message
+              }
+            ],
+            temperature: 1.2,
+            max_tokens: 40
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      chat.lastChild.remove();
+
+      const aiReply =
+        data.choices?.[0]?.message?.content ||
+        "Imagine losing this hard 💀";
+
+      addMessage(aiReply, "ai");
+
+    } catch (error) {
+      chat.lastChild.remove();
+
+      addMessage(
+        "The AI rage quit because your argument was too terrible.",
+        "ai"
+      );
+
+      console.error(error);
+    }
+  }
+
+  input.addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+      sendMessage();
+    }
+  });
+</script>
+
+</body>
+</html>
