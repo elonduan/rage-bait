@@ -1,8 +1,10 @@
 export default async function handler(req, res) {
 
+  console.log("METHOD:", req.method);
+
   if (req.method !== "POST") {
     return res.status(405).json({
-      error: "Method not allowed"
+      error: "Only POST allowed"
     });
   }
 
@@ -24,7 +26,7 @@ export default async function handler(req, res) {
             {
               role: "system",
               content:
-                "You are a stubborn rage-bait AI. Keep replies under 15 words."
+                "You are a stubborn rage-bait AI."
             },
             {
               role: "user",
