@@ -119,34 +119,14 @@
     chat.scrollTop = chat.scrollHeight;
   }
 
-  function calculateScore(message) {
-    let points = 0;
-
-    points += message.length;
-
-    const caps = message.match(/[A-Z]/g);
-    if (caps) {
-      points += caps.length * 2;
-    }
-
-    const exclamations = message.match(/!/g);
-    if (exclamations) {
-      points += exclamations.length * 3;
-    }
-
-    points += Math.floor(Math.random() * 10);
-
-    return points;
-  }
-
   function updateRank() {
     const rank = document.getElementById("rank");
 
-    if (score < 100) {
+    if (score < 10000) {
       rank.innerText = "Beginner Menace";
-    } else if (score < 300) {
+    } else if (score < 50000) {
       rank.innerText = "Certified Troll";
-    } else if (score < 700) {
+    } else if (score < 150000) {
       rank.innerText = "Keyboard Warrior";
     } else {
       rank.innerText = "Final Boss";
@@ -159,13 +139,6 @@
     if (!message) return;
 
     addMessage(message, "user");
-
-    const gained = calculateScore(message);
-    score += gained;
-
-    document.getElementById("scoreValue").innerText = score;
-
-    updateRank();
 
     input.value = "";
 
@@ -186,9 +159,12 @@
 
       chat.lastChild.remove();
 
-      const aiReply =
-        data.choices?.[0]?.message?.content ||
-        "Imagine losing this hard 💀";
+      const aiReply = data.reply || "Imagine losing this hard 💀";
+      const gained = Number(data.score) || 1000;
+
+      score += gained;
+      document.getElementById("scoreValue").innerText = score;
+      updateRank();
 
       addMessage(aiReply, "ai");
 
