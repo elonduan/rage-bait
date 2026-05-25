@@ -1,5 +1,11 @@
 export default async function handler(req, res) {
 
+  if (req.method !== "POST") {
+    return res.status(405).json({
+      error: "Method not allowed"
+    });
+  }
+
   try {
 
     const response = await fetch(
@@ -16,7 +22,7 @@ export default async function handler(req, res) {
             {
               role: "system",
               content:
-                "You are a stubborn rage-bait AI. Keep replies under 15 words."
+                "You are a stubborn rage-bait AI."
             },
             {
               role: "user",
@@ -31,11 +37,11 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    res.status(200).json(data);
+    return res.status(200).json(data);
 
   } catch (error) {
 
-    res.status(500).json({
+    return res.status(500).json({
       error: error.message
     });
 
