@@ -81,6 +81,44 @@
     #rank {
       color: cyan;
     }
+
+    #effect {
+      margin-top: 10px;
+      min-height: 36px;
+      font-size: 28px;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: 1px;
+      transition: transform 0.2s ease, color 0.2s ease, text-shadow 0.2s ease;
+    }
+
+    .effect-pulse {
+      animation: pulse 1.2s infinite;
+    }
+
+    .effect-shake {
+      animation: shake 0.5s infinite;
+    }
+
+    .effect-flash {
+      animation: flash 0.9s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+
+    @keyframes flash {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
   </style>
 </head>
 <body>
@@ -100,6 +138,8 @@
     |
     Rank: <span id="rank">Beginner Menace</span>
   </div>
+
+  <div id="effect"></div>
 </div>
 
 <script>
@@ -130,6 +170,49 @@
       rank.innerText = "Keyboard Warrior";
     } else {
       rank.innerText = "Final Boss";
+    }
+  }
+
+  function updateEffect() {
+    const effect = document.getElementById("effect");
+    effect.className = "";
+    effect.style.color = "white";
+    effect.style.textShadow = "none";
+
+    if (score === 1000) {
+      effect.innerText = "no effects";
+    } else if (score >= 1001 && score <= 5000) {
+      effect.innerText = "critical!";
+      effect.classList.add("effect-pulse");
+      effect.style.color = "#f59e0b";
+      effect.style.textShadow = "0 0 12px #f59e0b";
+    } else if (score >= 5001 && score <= 10000) {
+      effect.innerText = "Unbelievable!!!";
+      effect.classList.add("effect-pulse", "effect-flash");
+      effect.style.color = "#22d3ee";
+      effect.style.textShadow = "0 0 16px #22d3ee";
+    } else if (score >= 10001 && score <= 30000) {
+      effect.innerText = "EMOTIONAL DAMAGE!!!";
+      effect.classList.add("effect-shake");
+      effect.style.color = "#f97316";
+      effect.style.textShadow = "0 0 16px #f97316";
+    } else if (score >= 30001 && score <= 60000) {
+      effect.innerText = "PRO FAILURE MANAGER";
+      effect.classList.add("effect-pulse");
+      effect.style.color = "#a78bfa";
+      effect.style.textShadow = "0 0 16px #a78bfa";
+    } else if (score >= 60001 && score <= 89999) {
+      effect.innerText = "PRO RAGE-BAITER";
+      effect.classList.add("effect-pulse", "effect-flash");
+      effect.style.color = "red";
+      effect.style.textShadow = "0 0 18px red";
+    } else if (score >= 90000) {
+      effect.innerText = "Undefeatable!!!";
+      effect.classList.add("effect-pulse", "effect-flash");
+      effect.style.color = "#fde047";
+      effect.style.textShadow = "0 0 20px #fde047";
+    } else {
+      effect.innerText = "";
     }
   }
 
@@ -165,6 +248,7 @@
       score += gained;
       document.getElementById("scoreValue").innerText = score;
       updateRank();
+      updateEffect();
 
       addMessage(aiReply, "ai");
 
@@ -185,6 +269,8 @@
       sendMessage();
     }
   });
+
+  updateEffect();
 </script>
 
 </body>
