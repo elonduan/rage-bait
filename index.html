@@ -103,22 +103,6 @@
       text-shadow: 0 0 30px var(--glow-color), 0 0 75px var(--glow-color);
     }
 
-    .effect-pulse {
-      animation: pulse 0.75s ease-out 1;
-    }
-
-    .effect-shake {
-      animation: shake var(--shake-duration) ease-in-out 2;
-    }
-
-    .effect-flash {
-      animation: flash 0.8s ease-in-out 2;
-    }
-
-    .effect-explode {
-      animation: explode var(--explode-duration) cubic-bezier(0.14, 0.86, 0.24, 1);
-    }
-
     @keyframes pulse {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.08); }
@@ -183,6 +167,7 @@
   const input = document.getElementById("input");
 
   let score = 0;
+  let lastGained = 0;
 
   function addMessage(text, sender) {
     const div = document.createElement("div");
@@ -215,6 +200,7 @@
     effect.style.color = "#fff";
 
     const points = Number(currentPoints) || 0;
+    const animations = ["explode var(--explode-duration) cubic-bezier(0.14, 0.86, 0.24, 1)"];
 
     if (points === 1000) {
       effect.innerText = "no effects";
@@ -223,52 +209,54 @@
       effect.style.setProperty("--shake-duration", "520ms");
     } else if (points >= 1001 && points <= 5000) {
       effect.innerText = "critical!";
-      effect.classList.add("effect-pulse", "effect-explode");
       effect.style.color = "#f59e0b";
       effect.style.setProperty("--glow-color", "#f59e0b");
       effect.style.setProperty("--shake-distance", "8px");
       effect.style.setProperty("--shake-duration", "460ms");
+      animations.push("pulse 0.75s ease-out 1");
     } else if (points >= 5001 && points <= 10000) {
       effect.innerText = "Unbelievable!!!";
-      effect.classList.add("effect-pulse", "effect-flash", "effect-explode");
       effect.style.color = "#22d3ee";
       effect.style.setProperty("--glow-color", "#22d3ee");
       effect.style.setProperty("--shake-distance", "10px");
       effect.style.setProperty("--shake-duration", "420ms");
+      animations.push("pulse 0.75s ease-out 1", "flash 0.8s ease-in-out 2");
     } else if (points >= 10001 && points <= 30000) {
       effect.innerText = "EMOTIONAL DAMAGE!!!";
-      effect.classList.add("effect-shake", "effect-explode");
       effect.style.color = "#f97316";
       effect.style.setProperty("--glow-color", "#f97316");
       effect.style.setProperty("--shake-distance", "14px");
       effect.style.setProperty("--shake-duration", "350ms");
+      animations.push("shake var(--shake-duration) ease-in-out 2");
     } else if (points >= 30001 && points <= 60000) {
       effect.innerText = "PRO FAILURE MANAGER";
-      effect.classList.add("effect-pulse", "effect-shake", "effect-explode");
       effect.style.color = "#a78bfa";
       effect.style.setProperty("--glow-color", "#a78bfa");
       effect.style.setProperty("--shake-distance", "20px");
       effect.style.setProperty("--shake-duration", "300ms");
+      animations.push("pulse 0.75s ease-out 1", "shake var(--shake-duration) ease-in-out 2");
     } else if (points >= 60001 && points <= 89999) {
       effect.innerText = "PRO RAGE-BAITER";
-      effect.classList.add("effect-pulse", "effect-shake", "effect-flash", "effect-explode");
       effect.style.color = "red";
       effect.style.setProperty("--glow-color", "red");
       effect.style.setProperty("--shake-distance", "26px");
       effect.style.setProperty("--shake-duration", "240ms");
+      animations.push("pulse 0.75s ease-out 1", "shake var(--shake-duration) ease-in-out 2", "flash 0.8s ease-in-out 2");
     } else if (points >= 90000) {
       effect.innerText = "Undefeatable!!!";
-      effect.classList.add("effect-pulse", "effect-shake", "effect-flash", "effect-explode");
       effect.style.color = "#fde047";
       effect.style.setProperty("--glow-color", "#fde047");
       effect.style.setProperty("--shake-distance", "34px");
       effect.style.setProperty("--shake-duration", "180ms");
+      animations.push("pulse 0.75s ease-out 1", "shake var(--shake-duration) ease-in-out 2", "flash 0.8s ease-in-out 2");
     } else {
       effect.innerText = "";
     }
 
     void effect.offsetWidth;
-    effect.classList.add("effect-explode");
+    effect.style.animation = "none";
+    void effect.offsetWidth;
+    effect.style.animation = animations.join(", ");
   }
 
   async function sendMessage() {
@@ -300,10 +288,11 @@
       const aiReply = data.reply || "Imagine losing this hard 💀";
       const gained = Number(data.score) || 1000;
 
-      score = gained;
+      lastGained = gained;
+      score += gained;
       document.getElementById("scoreValue").innerText = score;
       updateRank();
-      updateEffect(gained);
+      updateEffect(lastGained);
 
       addMessage(aiReply, "ai");
 
