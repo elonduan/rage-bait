@@ -83,25 +83,40 @@
     }
 
     #effect {
-      margin-top: 10px;
-      min-height: 36px;
-      font-size: 28px;
-      font-weight: 800;
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0.7);
+      width: min(90vw, 900px);
+      font-size: clamp(44px, 9vw, 112px);
+      font-weight: 900;
       text-align: center;
-      letter-spacing: 1px;
-      transition: transform 0.2s ease, color 0.2s ease, text-shadow 0.2s ease;
+      letter-spacing: 2px;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 999;
+      text-transform: uppercase;
+      --shake-distance: 8px;
+      --shake-duration: 480ms;
+      --explode-duration: 1100ms;
+      --glow-color: #f59e0b;
+      text-shadow: 0 0 30px var(--glow-color), 0 0 75px var(--glow-color);
     }
 
     .effect-pulse {
-      animation: pulse 1.2s infinite;
+      animation: pulse 0.75s ease-out 1;
     }
 
     .effect-shake {
-      animation: shake 0.5s infinite;
+      animation: shake var(--shake-duration) ease-in-out 2;
     }
 
     .effect-flash {
-      animation: flash 0.9s infinite;
+      animation: flash 0.8s ease-in-out 2;
+    }
+
+    .effect-explode {
+      animation: explode var(--explode-duration) cubic-bezier(0.14, 0.86, 0.24, 1);
     }
 
     @keyframes pulse {
@@ -111,13 +126,34 @@
 
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-4px); }
-      75% { transform: translateX(4px); }
+      25% { transform: translateX(calc(-1 * var(--shake-distance))); }
+      75% { transform: translateX(var(--shake-distance)); }
     }
 
     @keyframes flash {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.4; }
+    }
+
+    @keyframes explode {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.4);
+        filter: blur(4px);
+      }
+      18% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.22);
+        filter: blur(0);
+      }
+      70% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.34);
+      }
     }
   </style>
 </head>
@@ -173,47 +209,66 @@
     }
   }
 
-  function updateEffect() {
+  function updateEffect(currentPoints) {
     const effect = document.getElementById("effect");
     effect.className = "";
-    effect.style.color = "white";
-    effect.style.textShadow = "none";
+    effect.style.color = "#fff";
 
-    if (score === 1000) {
+    const points = Number(currentPoints) || 0;
+
+    if (points === 1000) {
       effect.innerText = "no effects";
-    } else if (score >= 1001 && score <= 5000) {
+      effect.style.setProperty("--glow-color", "#e5e7eb");
+      effect.style.setProperty("--shake-distance", "6px");
+      effect.style.setProperty("--shake-duration", "520ms");
+    } else if (points >= 1001 && points <= 5000) {
       effect.innerText = "critical!";
-      effect.classList.add("effect-pulse");
+      effect.classList.add("effect-pulse", "effect-explode");
       effect.style.color = "#f59e0b";
-      effect.style.textShadow = "0 0 12px #f59e0b";
-    } else if (score >= 5001 && score <= 10000) {
+      effect.style.setProperty("--glow-color", "#f59e0b");
+      effect.style.setProperty("--shake-distance", "8px");
+      effect.style.setProperty("--shake-duration", "460ms");
+    } else if (points >= 5001 && points <= 10000) {
       effect.innerText = "Unbelievable!!!";
-      effect.classList.add("effect-pulse", "effect-flash");
+      effect.classList.add("effect-pulse", "effect-flash", "effect-explode");
       effect.style.color = "#22d3ee";
-      effect.style.textShadow = "0 0 16px #22d3ee";
-    } else if (score >= 10001 && score <= 30000) {
+      effect.style.setProperty("--glow-color", "#22d3ee");
+      effect.style.setProperty("--shake-distance", "10px");
+      effect.style.setProperty("--shake-duration", "420ms");
+    } else if (points >= 10001 && points <= 30000) {
       effect.innerText = "EMOTIONAL DAMAGE!!!";
-      effect.classList.add("effect-shake");
+      effect.classList.add("effect-shake", "effect-explode");
       effect.style.color = "#f97316";
-      effect.style.textShadow = "0 0 16px #f97316";
-    } else if (score >= 30001 && score <= 60000) {
+      effect.style.setProperty("--glow-color", "#f97316");
+      effect.style.setProperty("--shake-distance", "14px");
+      effect.style.setProperty("--shake-duration", "350ms");
+    } else if (points >= 30001 && points <= 60000) {
       effect.innerText = "PRO FAILURE MANAGER";
-      effect.classList.add("effect-pulse");
+      effect.classList.add("effect-pulse", "effect-shake", "effect-explode");
       effect.style.color = "#a78bfa";
-      effect.style.textShadow = "0 0 16px #a78bfa";
-    } else if (score >= 60001 && score <= 89999) {
+      effect.style.setProperty("--glow-color", "#a78bfa");
+      effect.style.setProperty("--shake-distance", "20px");
+      effect.style.setProperty("--shake-duration", "300ms");
+    } else if (points >= 60001 && points <= 89999) {
       effect.innerText = "PRO RAGE-BAITER";
-      effect.classList.add("effect-pulse", "effect-flash");
+      effect.classList.add("effect-pulse", "effect-shake", "effect-flash", "effect-explode");
       effect.style.color = "red";
-      effect.style.textShadow = "0 0 18px red";
-    } else if (score >= 90000) {
+      effect.style.setProperty("--glow-color", "red");
+      effect.style.setProperty("--shake-distance", "26px");
+      effect.style.setProperty("--shake-duration", "240ms");
+    } else if (points >= 90000) {
       effect.innerText = "Undefeatable!!!";
-      effect.classList.add("effect-pulse", "effect-flash");
+      effect.classList.add("effect-pulse", "effect-shake", "effect-flash", "effect-explode");
       effect.style.color = "#fde047";
-      effect.style.textShadow = "0 0 20px #fde047";
+      effect.style.setProperty("--glow-color", "#fde047");
+      effect.style.setProperty("--shake-distance", "34px");
+      effect.style.setProperty("--shake-duration", "180ms");
     } else {
       effect.innerText = "";
     }
+
+    void effect.offsetWidth;
+    effect.classList.add("effect-explode");
   }
 
   async function sendMessage() {
@@ -245,10 +300,10 @@
       const aiReply = data.reply || "Imagine losing this hard 💀";
       const gained = Number(data.score) || 1000;
 
-      score += gained;
+      score = gained;
       document.getElementById("scoreValue").innerText = score;
       updateRank();
-      updateEffect();
+      updateEffect(gained);
 
       addMessage(aiReply, "ai");
 
@@ -270,7 +325,7 @@
     }
   });
 
-  updateEffect();
+  updateEffect(score);
 </script>
 
 </body>
