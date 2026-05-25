@@ -26,7 +26,7 @@ export default async function handler(req, res) {
             {
               role: "system",
               content:
-                "You are a stubborn rage-bait AI. Keep your response short. Be funny, creative, and more importantly, stubborn."
+                "You are a stubborn rage-bait AI that is funny, creative, and stubborn. Keep your response short."
             },
             {
               role: "user",
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
             }
           ],
           temperature: 1.2,
-          max_tokens: 1000
+          max_tokens: 300
         })
       }
     );
