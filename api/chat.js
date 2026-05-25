@@ -8,9 +8,9 @@ export default async function handler(req, res) {
 
   try {
 
-    const body = JSON.parse(req.body);
+    const message = req.body.message;
 
-    const response = await fetch(
+    const groqResponse = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
       {
         method: "POST",
@@ -23,22 +23,27 @@ export default async function handler(req, res) {
           messages: [
             {
               role: "system",
-              content: "You are a rage bait AI."
+              content:
+                "You are a stubborn rage-bait AI. Keep replies under 15 words."
             },
             {
               role: "user",
-              content: body.message
+              content: message
             }
-          ]
+          ],
+          temperature: 1.2,
+          max_tokens: 40
         })
       }
     );
 
-    const data = await response.json();
+    const data = await groqResponse.json();
 
     return res.status(200).json(data);
 
   } catch (error) {
+
+    console.error(error);
 
     return res.status(500).json({
       error: error.message
