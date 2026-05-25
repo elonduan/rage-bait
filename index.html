@@ -99,6 +99,8 @@
       --shake-distance: 8px;
       --shake-duration: 480ms;
       --explode-duration: 1100ms;
+      --screen-shake-distance: 0px;
+      --screen-shake-duration: 0ms;
       --glow-color: #f59e0b;
       text-shadow: 0 0 30px var(--glow-color), 0 0 75px var(--glow-color);
     }
@@ -171,8 +173,8 @@
       width: var(--w, 36px);
       height: var(--h, 26px);
       border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, rgba(180,180,180,0.45), rgba(75,75,75,0.24) 55%, rgba(20,20,20,0));
-      filter: blur(2px);
+      background: radial-gradient(circle at 35% 35%, rgba(212,212,212,0.52), rgba(120,120,120,0.3) 55%, rgba(32,32,32,0));
+      filter: blur(2.4px);
       mix-blend-mode: screen;
       animation: smokeRise var(--life, 1600ms) ease-out forwards;
     }
@@ -189,6 +191,22 @@
         opacity: 0;
         transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) translateX(var(--distance, 120px)) translateY(var(--drop, 26px)) scale(0.25);
       }
+    }
+
+    
+
+    @keyframes screenShake {
+      0%, 100% { transform: translate(0, 0); }
+      15% { transform: translate(calc(-1 * var(--screen-shake-distance)), calc(-0.4 * var(--screen-shake-distance))); }
+      30% { transform: translate(var(--screen-shake-distance), calc(0.6 * var(--screen-shake-distance))); }
+      45% { transform: translate(calc(-0.8 * var(--screen-shake-distance)), var(--screen-shake-distance)); }
+      60% { transform: translate(var(--screen-shake-distance), calc(-0.8 * var(--screen-shake-distance))); }
+      75% { transform: translate(calc(-0.6 * var(--screen-shake-distance)), calc(0.8 * var(--screen-shake-distance))); }
+      90% { transform: translate(calc(0.4 * var(--screen-shake-distance)), calc(-0.6 * var(--screen-shake-distance))); }
+    }
+
+    body.screen-shake {
+      animation: screenShake var(--screen-shake-duration) linear 1;
     }
 
     @keyframes smokeRise {
@@ -235,6 +253,7 @@
 
   let score = 0;
   let lastGained = 0;
+  let screenShakeTimer = null;
 
   function addMessage(text, sender) {
     const div = document.createElement("div");
@@ -265,6 +284,8 @@
     const effect = document.getElementById("effect");
     effect.className = "";
     effect.style.color = "#fff";
+    effect.style.setProperty("--screen-shake-distance", "0px");
+    effect.style.setProperty("--screen-shake-duration", "0ms");
 
     const points = Number(currentPoints) || 0;
     const animations = ["explode var(--explode-duration) cubic-bezier(0.14, 0.86, 0.24, 1)"];
@@ -318,10 +339,13 @@
       effect.innerText = "Undefeatable!!!";
       effect.style.color = "#fde047";
       effect.style.setProperty("--glow-color", "#fde047");
-      effect.style.setProperty("--shake-distance", "34px");
-      effect.style.setProperty("--shake-duration", "180ms");
-      animations.push("pulse 0.75s ease-out 1", "shake var(--shake-duration) ease-in-out 2", "flash 0.8s ease-in-out 2");
-      spawnBurstParticles({ sparks: 46, smoke: 24, color: "#fde047", intensity: 1.55 });
+      effect.style.setProperty("--shake-distance", "52px");
+      effect.style.setProperty("--shake-duration", "130ms");
+      effect.style.setProperty("--screen-shake-distance", "18px");
+      effect.style.setProperty("--screen-shake-duration", "720ms");
+      animations.push("pulse 0.75s ease-out 1", "shake var(--shake-duration) ease-in-out 4", "flash 0.65s ease-in-out 3");
+      spawnBurstParticles({ sparks: 90, smoke: 46, color: "#f97316", intensity: 2.4 });
+      triggerScreenShake(effect);
     } else {
       effect.innerText = "";
     }
@@ -370,6 +394,27 @@
       fxLayer.appendChild(puff);
       puff.addEventListener("animationend", () => puff.remove(), { once: true });
     }
+  }
+
+
+  function triggerScreenShake(effectEl) {
+    const body = document.body;
+    if (screenShakeTimer) {
+      clearTimeout(screenShakeTimer);
+      screenShakeTimer = null;
+    }
+
+    body.classList.remove("screen-shake");
+    body.style.setProperty("--screen-shake-distance", effectEl.style.getPropertyValue("--screen-shake-distance") || "14px");
+    body.style.setProperty("--screen-shake-duration", effectEl.style.getPropertyValue("--screen-shake-duration") || "640ms");
+    void body.offsetWidth;
+    body.classList.add("screen-shake");
+
+    const duration = Number.parseInt((effectEl.style.getPropertyValue("--screen-shake-duration") || "640ms"), 10) || 640;
+    screenShakeTimer = setTimeout(() => {
+      body.classList.remove("screen-shake");
+      screenShakeTimer = null;
+    }, duration + 60);
   }
 
 
