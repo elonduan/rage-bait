@@ -8,6 +8,8 @@ export default async function handler(req, res) {
 
   try {
 
+    const body = JSON.parse(req.body);
+
     const response = await fetch(
       "https://api.groq.com/openai/v1/chat/completions",
       {
@@ -21,16 +23,13 @@ export default async function handler(req, res) {
           messages: [
             {
               role: "system",
-              content:
-                "You are a stubborn rage-bait AI."
+              content: "You are a rage bait AI."
             },
             {
               role: "user",
-              content: req.body.message
+              content: body.message
             }
-          ],
-          temperature: 1.2,
-          max_tokens: 40
+          ]
         })
       }
     );
